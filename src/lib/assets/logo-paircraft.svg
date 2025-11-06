@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="48" viewBox="0 0 180 48" role="img" aria-labelledby="title">
+	<title id="title">PairCraft</title>
+	<rect width="180" height="48" rx="8" fill="#fff" />
+	<g fill="none" stroke="#111" stroke-width="2">
+		<circle cx="28" cy="24" r="12" />
+		<circle cx="44" cy="24" r="12" />
+		<path d="M20 16 L24 20" stroke-linecap="round" />
+		<path d="M52 32 L48 28" stroke-linecap="round" />
+	</g>
+	<text x="70" y="30" font-family="Futura, 'Avenir Next', 'Segoe UI', sans-serif" font-size="20" font-weight="600" letter-spacing="1" fill="#111">
+		PairCraft
+	</text>
+</svg>
