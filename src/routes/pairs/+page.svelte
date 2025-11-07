@@ -1,12 +1,42 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
+	import { exceptions } from '$lib/stores/exceptions';
+	import { participants } from '$lib/stores/participants';
+	import { generatePairs, type PaircraftResult } from '$lib/utils/paircraft';
+	import { onMount } from 'svelte';
 
-	const mockPairs = [
-		{ giver: 'Alex', receiver: 'Jordan' },
-		{ giver: 'Priya', receiver: 'Mateo' },
-		{ giver: 'Sam', receiver: 'Harper' },
-		{ giver: 'Luca', receiver: 'Mina' }
-	];
+	let pairResult: PaircraftResult | undefined;
+	let pairEntries: { giver: string; receiver: string }[] = [];
+	let hydrated = browser;
+
+	onMount(() => {
+		hydrated = true;
+	});
+
+	$: {
+		if (!hydrated) {
+			pairResult = undefined;
+			pairEntries = [];
+		} else {
+			const names = $participants.map((name) => name.trim()).filter(Boolean);
+			const exceptionMap = $exceptions;
+			pairResult = generatePairs(names, exceptionMap);
+			pairEntries = pairResult.success
+				? Object.entries(pairResult.pairs).map(([giver, receiver]) => ({ giver, receiver }))
+				: [];
+		}
+	}
+
+	async function copyPairs() {
+		if (!pairResult?.success) return;
+		const text = pairEntries.map((pair) => `${pair.giver} -> ${pair.receiver}`).join('\n');
+		try {
+			await navigator.clipboard.writeText(text);
+		} catch (error) {
+			console.error('Failed to copy pairs', error);
+		}
+	}
 
 	function goBackToExceptions() {
 		goto('/exceptions');
@@ -25,28 +55,46 @@
 </section>
 
 <main class="container">
-	{#if mockPairs.length === 0}
-		<p class="empty">We don’t have any pairs yet. Generate matches to see them here.</p>
-	{:else}
+	{#if !hydrated}
+		<p class="loading">Loading your pairs…</p>
+	{:else if pairResult?.success}
 		<section class="pairs">
 			<div class="pairs__header">
-				<p class="pairs__hint">Mocked data for now—wire up the engine when you’re ready.</p>
+				<p class="pairs__hint">Need a new combo? Update the lists and refresh this page.</p>
 			</div>
 			<div class="pairs__grid">
-				{#each mockPairs as pair}
+				{#each pairEntries as pair}
 					<article class="pair-card">
 						<div>
-							<p class="pair-card__label">Giver</p>
+							<p class="pair-card__label">Person A</p>
 							<p class="pair-card__name">{pair.giver}</p>
 						</div>
 						<span class="pair-card__arrow" aria-hidden="true">→</span>
 						<div>
-							<p class="pair-card__label">Receiver</p>
+							<p class="pair-card__label">Paired with</p>
 							<p class="pair-card__name">{pair.receiver}</p>
 						</div>
 					</article>
 				{/each}
 			</div>
+		</section>
+	{:else}
+		<section class="error">
+			<h3>We couldn't create pairs</h3>
+			{#if pairResult?.reason === 'constraints'}
+				<p>It looks like the current exceptions block every possibility. Try relaxing them.</p>
+			{:else if pairResult?.errors}
+				<ul>
+					{#each pairResult.errors as issue}
+						<li>{issue}</li>
+					{/each}
+				</ul>
+			{:else}
+				<p>Add at least two names to get started.</p>
+			{/if}
+			<button class="error__link" type="button" on:click={goBackToExceptions}>
+				Review names & exceptions
+			</button>
 		</section>
 	{/if}
 </main>
@@ -56,6 +104,14 @@
 		<div class="footer__links">
 			<button class="footer__link" type="button" on:click={goBackToExceptions}>
 				Back to exceptions
+			</button>
+			<button
+				class="footer__link"
+				type="button"
+				on:click={copyPairs}
+				disabled={!pairResult?.success}
+			>
+				Copy pairs
 			</button>
 		</div>
 	</div>
@@ -84,10 +140,10 @@
 	.container {
 		max-width: 40rem;
 		margin: 0 auto;
-		padding: 3rem 1.5rem 4rem;
+		padding: 3rem 1.5rem 8rem;
 	}
 
-	.empty {
+	.loading {
 		margin-top: 2rem;
 		color: #64748b;
 	}
@@ -146,6 +202,38 @@
 	.pair-card__arrow {
 		font-size: 1.5rem;
 		color: #1d4ed8;
+	}
+
+	.error {
+		margin-top: 2rem;
+		padding: 1.5rem;
+		border-radius: 0.75rem;
+		border: 1px solid #fee2e2;
+		background: #fef2f2;
+		color: #b91c1c;
+	}
+
+	.error h3 {
+		margin-top: 0;
+		margin-bottom: 0.5rem;
+	}
+
+	.error ul {
+		margin: 0.5rem 0 1rem;
+		padding-left: 1.25rem;
+	}
+
+	.error__link {
+		border: none;
+		background: none;
+		color: #1d4ed8;
+		font-weight: 600;
+		cursor: pointer;
+		text-decoration: underline;
+	}
+
+	.error__link:hover {
+		color: #1e40af;
 	}
 
 	.footer {
