@@ -1,14 +1,31 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { exceptions } from '$lib/stores/exceptions';
 	import { participants } from '$lib/stores/participants';
 	import { generatePairs, type PaircraftResult } from '$lib/utils/paircraft';
 	import { onMount } from 'svelte';
 
+	const createSeededRng = (seed: string) => {
+		let h = 2166136261 >>> 0;
+		for (let i = 0; i < seed.length; i++) {
+			h ^= seed.charCodeAt(i);
+			h = Math.imul(h, 16777619);
+		}
+
+		return () => {
+			h += 0x6d2b79f5;
+			let t = Math.imul(h ^ (h >>> 15), 1 | h);
+			t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+			return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+		};
+	};
+
 	let pairResult: PaircraftResult | undefined;
 	let pairEntries: { giver: string; receiver: string }[] = [];
 	let hydrated = browser;
+	let seed = crypto.randomUUID();
 
 	onMount(() => {
 		hydrated = true;
@@ -21,11 +38,16 @@
 		} else {
 			const names = $participants.map((name) => name.trim()).filter(Boolean);
 			const exceptionMap = $exceptions;
-			pairResult = generatePairs(names, exceptionMap);
+			const seededRng = createSeededRng(seed);
+			pairResult = generatePairs(names, exceptionMap, { rng: seededRng });
 			pairEntries = pairResult.success
 				? Object.entries(pairResult.pairs).map(([giver, receiver]) => ({ giver, receiver }))
 				: [];
 		}
+	}
+
+	function regeneratePairs() {
+		seed = crypto.randomUUID();
 	}
 
 	async function copyPairs() {
@@ -39,7 +61,7 @@
 	}
 
 	function goBackToExceptions() {
-		goto('/exceptions');
+		goto(resolve('/exceptions'));
 	}
 </script>
 
@@ -60,10 +82,12 @@
 	{:else if pairResult?.success}
 		<section class="pairs">
 			<div class="pairs__header">
-				<p class="pairs__hint">Need a new combo? Update the lists and refresh this page.</p>
+				<p class="pairs__hint">
+					Need a new combo? You can generate pairs again with the button below!
+				</p>
 			</div>
 			<div class="pairs__grid">
-				{#each pairEntries as pair}
+				{#each pairEntries as pair (pair.giver + pair.receiver)}
 					<article class="pair-card">
 						<div>
 							<p class="pair-card__label">Person A</p>
@@ -85,7 +109,7 @@
 				<p>It looks like the current exceptions block every possibility. Try relaxing them.</p>
 			{:else if pairResult?.errors}
 				<ul>
-					{#each pairResult.errors as issue}
+					{#each pairResult.errors as issue (issue)}
 						<li>{issue}</li>
 					{/each}
 				</ul>
@@ -101,6 +125,13 @@
 
 <footer class="footer">
 	<div class="footer__content">
+		{#if pairResult?.success}
+			<div class="footer__primary">
+				<button class="primary-action__button" type="button" on:click={regeneratePairs}>
+					Regenerate pairs
+				</button>
+			</div>
+		{/if}
 		<div class="footer__links">
 			<button class="footer__link" type="button" on:click={goBackToExceptions}>
 				Back to exceptions
@@ -201,7 +232,7 @@
 
 	.pair-card__arrow {
 		font-size: 1.5rem;
-		color: #1d4ed8;
+		color: #00867d;
 	}
 
 	.error {
@@ -226,14 +257,14 @@
 	.error__link {
 		border: none;
 		background: none;
-		color: #1d4ed8;
+		color: #00867d;
 		font-weight: 600;
 		cursor: pointer;
 		text-decoration: underline;
 	}
 
 	.error__link:hover {
-		color: #1e40af;
+		color: #006a63;
 	}
 
 	.footer {
@@ -255,10 +286,35 @@
 		gap: 1rem;
 	}
 
+	.footer__primary {
+		display: flex;
+		justify-content: flex-end;
+	}
+
+	.primary-action__button {
+		border-radius: 0.5rem;
+		border: 1px solid #00867d;
+		background: #00867d;
+		color: white;
+		padding: 0.75rem 1.5rem;
+		font-weight: 600;
+		font-size: 1rem;
+		cursor: pointer;
+		transition:
+			background-color 0.15s ease,
+			border-color 0.15s ease;
+		box-shadow: 0 12px 30px -18px rgba(0, 134, 125, 0.35);
+	}
+
+	.primary-action__button:hover {
+		background: #006a63;
+		border-color: #006a63;
+	}
+
 	.footer__link {
 		border: none;
 		background: none;
-		color: #64748b;
+		color: #00867d;
 		font-size: 0.95rem;
 		cursor: pointer;
 		font-weight: 500;
@@ -273,8 +329,8 @@
 	}
 
 	.footer__link:hover {
-		color: #475569;
-		background-color: rgba(148, 163, 184, 0.12);
+		color: #006a63;
+		background-color: rgba(0, 134, 125, 0.12);
 	}
 
 	.footer__link:disabled {

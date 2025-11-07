@@ -24,8 +24,8 @@
 			: Math.random().toString(36).slice(2)
 	}`;
 
-$: selectedLabel =
-	options.find((option) => option.value === value)?.label ?? (value ? value : '');
+	$: selectedLabel =
+		options.find((option) => option.value === value)?.label ?? (value ? value : '');
 
 	const toggleOpen = () => {
 		if (!options.length) return;
@@ -99,7 +99,7 @@ $: selectedLabel =
 			aria-activedescendant={value ? `${selectId}-${value}` : undefined}
 			tabindex="0"
 		>
-			{#each options as option}
+			{#each options as option (option.value)}
 				<li
 					id={`${selectId}-${option.value}`}
 					class="select__option"
@@ -149,7 +149,7 @@ $: selectedLabel =
 	}
 
 	.select__trigger:focus-visible {
-		outline: 2px solid #1d4ed8;
+		outline: 2px solid #00867d;
 		outline-offset: 2px;
 	}
 
@@ -202,11 +202,11 @@ $: selectedLabel =
 	}
 
 	.select__option button:hover {
-		background: rgba(59, 130, 246, 0.12);
+		background: rgba(0, 134, 125, 0.12);
 	}
 
 	.select__option.selected button {
-		background: rgba(59, 130, 246, 0.18);
+		background: rgba(0, 134, 125, 0.18);
 		font-weight: 600;
 	}
 

@@ -112,7 +112,7 @@
 				aria-multiselectable="true"
 				bind:this={listboxEl}
 			>
-				{#each options as option}
+				{#each options as option (option.value)}
 					<button
 						type="button"
 						class="chip"
@@ -169,13 +169,13 @@
 	}
 
 	.multiselect__trigger:focus-visible {
-		outline: 2px solid #1d4ed8;
+		outline: 2px solid #00867d;
 		outline-offset: 2px;
 	}
 
 	.multiselect__trigger--open {
-		border-color: #1d4ed8;
-		box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.15);
+		border-color: #00867d;
+		box-shadow: 0 0 0 2px rgba(0, 134, 125, 0.15);
 	}
 
 	.multiselect__placeholder {
@@ -237,14 +237,14 @@
 	}
 
 	.chip--selected {
-		border-color: #1d4ed8;
-		color: #1d4ed8;
+		border-color: #00867d;
+		color: #00867d;
 		background: white;
 		box-shadow: none;
 	}
 
 	.chip--selected:hover {
-		background: rgba(29, 78, 216, 0.12);
+		background: rgba(0, 134, 125, 0.12);
 	}
 
 	.chip:disabled {
@@ -262,7 +262,7 @@
 	.multiselect__link {
 		border: none;
 		background: none;
-		color: #1d4ed8;
+		color: #00867d;
 		font-weight: 600;
 		font-size: 0.9rem;
 		cursor: pointer;
@@ -271,6 +271,6 @@
 	}
 
 	.multiselect__link:hover {
-		background-color: rgba(29, 78, 216, 0.12);
+		background-color: rgba(0, 134, 125, 0.12);
 	}
 </style>

@@ -1,8 +1,10 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import favicon from '$lib/assets/icon-paircraft.png';
 	import logo from '$lib/assets/logo-paircraft.svg';
 
 	let { children } = $props();
+	const homeHref = resolve('/');
 </script>
 
 <svelte:head>
@@ -10,7 +12,7 @@
 </svelte:head>
 
 <header class="app-header">
-	<a class="brand" href="/">
+	<a class="brand" href={homeHref}>
 		<img src={logo} alt="PairCraft logo" />
 	</a>
 </header>

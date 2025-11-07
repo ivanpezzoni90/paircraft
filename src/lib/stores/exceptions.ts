@@ -51,7 +51,9 @@ function sanitize(value: Record<string, unknown>): Record<string, string[]> {
 		if (typeof key !== 'string') continue;
 		if (!Array.isArray(list)) continue;
 
-		const filtered = list.filter((item): item is string => typeof item === 'string' && item.trim() !== '');
+		const filtered = list.filter(
+			(item): item is string => typeof item === 'string' && item.trim() !== ''
+		);
 		if (filtered.length > 0) {
 			result[key] = filtered;
 		}

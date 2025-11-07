@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { browser } from '$app/environment';
 	import { tick } from 'svelte';
 	import { participants, resetParticipants } from '$lib/stores/participants';
@@ -31,7 +32,7 @@
 
 	const goToExceptions = () => {
 		if (filledCount < 2) return;
-		goto('/exceptions');
+		goto(resolve('/exceptions'));
 	};
 
 	const handleKeyDown = async (event: KeyboardEvent, index: number) => {
@@ -80,7 +81,7 @@
 
 <div class="container">
 	<div class="inputs">
-		{#each entries as entry, index}
+		{#each entries as entry, index (index)}
 			<input
 				class="name-input"
 				type="text"
@@ -175,6 +176,15 @@
 		border-radius: 0.5rem;
 		border: 1px solid #cbd5e1;
 		font-size: 1rem;
+		transition:
+			border-color 0.15s ease,
+			box-shadow 0.15s ease;
+	}
+
+	.name-input:focus-visible {
+		outline: none;
+		border-color: #00867d;
+		box-shadow: 0 0 0 2px rgba(0, 134, 125, 0.2);
 	}
 
 	.actions {
@@ -197,9 +207,9 @@
 		flex: 1;
 		padding: 0.75rem 1rem;
 		border-radius: 0.5rem;
-		border: 1px solid #1d4ed8;
+		border: 1px solid #00867d;
 		background-color: white;
-		color: #1d4ed8;
+		color: #00867d;
 		font-weight: 600;
 		cursor: pointer;
 		transition:
@@ -209,8 +219,17 @@
 	}
 
 	.action.primary {
-		background-color: #1d4ed8;
+		background-color: #00867d;
 		color: white;
+	}
+
+	.action:not(:disabled):hover {
+		background-color: rgba(0, 134, 125, 0.08);
+	}
+
+	.action.primary:not(:disabled):hover {
+		background-color: #006a63;
+		border-color: #006a63;
 	}
 
 	.action:disabled {
@@ -242,12 +261,12 @@
 		align-self: flex-end;
 		border: none;
 		background: none;
-		color: #64748b;
+		color: #00867d;
 		font-size: 0.95rem;
 		cursor: pointer;
 		font-weight: 500;
 		text-decoration: underline;
-		text-decoration-color: rgba(100, 116, 139, 0.4);
+		text-decoration-color: rgba(0, 134, 125, 0.4);
 		text-decoration-thickness: 1px;
 		padding: 0.25rem 0.5rem;
 		border-radius: 0.375rem;
@@ -257,7 +276,7 @@
 	}
 
 	.footer__clear:hover {
-		color: #475569;
-		background-color: rgba(148, 163, 184, 0.12);
+		color: #006a63;
+		background-color: rgba(0, 134, 125, 0.12);
 	}
 </style>

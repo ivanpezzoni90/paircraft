@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import MultiSelect from '$lib/components/MultiSelect.svelte';
 	import Select from '$lib/components/Select.svelte';
 	import { exceptions, resetExceptions } from '$lib/stores/exceptions';
@@ -43,11 +44,11 @@
 	}
 
 	function goBackToNames() {
-		goto('/');
+		goto(resolve('/'));
 	}
 
 	function goToPairs() {
-		goto('/pairs');
+		goto(resolve('/pairs'));
 	}
 
 	function observePairsButton(node: HTMLElement) {
@@ -120,7 +121,7 @@
 			<section class="summary">
 				<h2>Current exceptions</h2>
 				<ul>
-					{#each summaryEntries as [subject, blocked]}
+					{#each summaryEntries as [subject, blocked] (subject)}
 						<li>
 							<strong>{subject}</strong>
 							<span aria-hidden="true">-></span>
@@ -283,8 +284,8 @@
 
 	.primary-action__button {
 		border-radius: 0.5rem;
-		border: 1px solid #1d4ed8;
-		background: #1d4ed8;
+		border: 1px solid #00867d;
+		background: #00867d;
 		color: white;
 		padding: 0.75rem 1rem;
 		font-weight: 600;
@@ -293,12 +294,12 @@
 		transition:
 			background-color 0.15s ease,
 			border-color 0.15s ease;
-		box-shadow: 0 12px 30px -18px rgba(29, 78, 216, 0.6);
+		box-shadow: 0 12px 30px -18px rgba(0, 134, 125, 0.35);
 	}
 
 	.primary-action__button:hover {
-		background: #1e40af;
-		border-color: #1e40af;
+		background: #006a63;
+		border-color: #006a63;
 	}
 
 	.footer {
@@ -328,12 +329,12 @@
 	.footer__link {
 		border: none;
 		background: none;
-		color: #64748b;
+		color: #00867d;
 		font-size: 0.95rem;
 		cursor: pointer;
 		font-weight: 500;
 		text-decoration: underline;
-		text-decoration-color: rgba(100, 116, 139, 0.4);
+		text-decoration-color: rgba(0, 134, 125, 0.4);
 		text-decoration-thickness: 1px;
 		padding: 0.25rem 0.5rem;
 		border-radius: 0.375rem;
@@ -343,8 +344,8 @@
 	}
 
 	.footer__link:hover {
-		color: #475569;
-		background-color: rgba(148, 163, 184, 0.12);
+		color: #006a63;
+		background-color: rgba(0, 134, 125, 0.12);
 	}
 
 	.footer__link:disabled {
