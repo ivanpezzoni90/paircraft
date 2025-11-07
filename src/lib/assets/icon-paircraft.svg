@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96" role="img" aria-labelledby="title">
+	<title id="title">PairCraft icon</title>
+	<rect width="96" height="96" rx="16" fill="#fff" />
+	<g fill="none" stroke="#111" stroke-width="4">
+		<circle cx="36" cy="48" r="24" />
+		<circle cx="60" cy="48" r="24" />
+		<path d="M20 28 L28 36" stroke-linecap="round" />
+		<path d="M76 68 L68 60" stroke-linecap="round" />
+	</g>
+</svg>

@@ -5,6 +5,11 @@ export type PaircraftResult =
 	| { success: true; pairs: PairingMap }
 	| { success: false; reason: 'constraints' | 'invalid'; errors?: string[] };
 
+export type PaircraftOptions = {
+	attempts?: number;
+	rng?: () => number;
+};
+
 const normalizeExceptions = (exceptions: ExceptionsMap, participants: string[]) => {
 	const normalized: ExceptionsMap = {};
 	const allowed = new Set(participants);
@@ -84,10 +89,17 @@ const makePicks = (
 	return picks;
 };
 
+const getRandom = (): (() => number) => {
+	if (typeof crypto !== 'undefined' && 'getRandomValues' in crypto) {
+		return () => crypto.getRandomValues(new Uint32Array(1))[0] / 0xffffffff;
+	}
+	return Math.random;
+};
+
 export const generatePairs = (
 	participants: string[],
 	exceptions: ExceptionsMap,
-	rng?: () => number
+	options: PaircraftOptions = {}
 ): PaircraftResult => {
 	const trimmed = participants.map((name) => name.trim()).filter(Boolean);
 
@@ -96,16 +108,19 @@ export const generatePairs = (
 	}
 
 	const normalizedExceptions = normalizeExceptions(exceptions, trimmed);
-	const picks = makePicks(trimmed, normalizedExceptions, rng);
 
-	if (!picks) {
-		return { success: false, reason: 'constraints' };
+	const maxAttempts = Math.max(1, options.attempts ?? 100);
+	const rng = options.rng ?? getRandom();
+
+	for (let attempt = 0; attempt < maxAttempts; attempt++) {
+		const picks = makePicks(trimmed, normalizedExceptions, rng);
+		if (!picks) continue;
+
+		const errors = testPairings(picks, normalizedExceptions);
+		if (errors.length === 0) {
+			return { success: true, pairs: picks };
+		}
 	}
 
-	const errors = testPairings(picks, normalizedExceptions);
-	if (errors.length > 0) {
-		return { success: false, reason: 'invalid', errors };
-	}
-
-	return { success: true, pairs: picks };
+	return { success: false, reason: 'constraints' };
 };

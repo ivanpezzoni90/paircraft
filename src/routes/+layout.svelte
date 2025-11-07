@@ -1,5 +1,5 @@
 <script lang="ts">
-	import favicon from '$lib/assets/favicon.svg';
+	import favicon from '$lib/assets/icon-paircraft.png';
 	import logo from '$lib/assets/logo-paircraft.svg';
 
 	let { children } = $props();
@@ -20,7 +20,12 @@
 <style>
 	:global(body) {
 		margin: 0;
-		font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+		font-family:
+			system-ui,
+			-apple-system,
+			BlinkMacSystemFont,
+			'Segoe UI',
+			sans-serif;
 		background: #f8fafc;
 		color: #0f172a;
 	}
